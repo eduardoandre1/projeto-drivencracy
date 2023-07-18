@@ -21,7 +21,7 @@ mongoClient.connect()
 .catch((err) => console.log(err.message,"server offline"));
 
 app.post("/poll",async (req,res)=>{
-    const [title,expireAt] = req.body
+    const {title,expireAt} = req.body
     console.log(title,expireAt)
     const enquete ={title:title,expireAt:expireAt}
     if(!title){
@@ -36,6 +36,12 @@ app.post("/poll",async (req,res)=>{
     }catch(err){
         return res.status(500).send(err.message)
     }
+})
+app.get("/poll",async (req,res)=>{
+    try{
+        const list_enquetes = await db.collection('enquetes').find().toArray()
+        return res.status(200).send(list_enquetes)
+    }catch(err){return res.status(500).send(err.message)}
 })
 
 app.listen(5000,()=>console.log("api is working"))
