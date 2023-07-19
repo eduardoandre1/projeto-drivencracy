@@ -31,7 +31,6 @@ app.post("/poll",async (req,res)=>{
         enquete.expireAt = dayjs().add(30,'day').format("YYYY-MM-DD HH:mm:ss")
     }
     try{
-        enquete.expireAt = new Date(enquete.expireAt)
         await db.collection("enquetes").insertOne(enquete)
         return res.sendStatus(201)
     }catch(err){
@@ -74,14 +73,25 @@ app.get("/poll/:id/choice",async(req,res)=>{
     const identific = req.params.id
     try{
         const choices = await db.collection('choices').find({pollId:identific}).toArray()
-        console.log(choices)
-        console.log(choices === null)
-        console.log(choices === [])
         if(choices.length < 1){
             return res.status(404).send("enquete não encotrada no servidor")
         }
         return res.status(200).send(choices)
     }catch(erro){return res.status(500).send(erro.message)}
+})
+
+app.post("/choice/:id/vote",async(req,res)=>{
+    console.log("voto")
+    const option_choosen = req.params.id
+    const done_in = dayjs().format("YYYY-MM-DD HH:mm:ss")
+    const vote = {option:option_choosen,time:done_in}
+    try{
+        const choice = await db.collection('choices').findOne({_id:new ObjectId(option_choosen)})
+        console.log(choice)
+        const enquet = await db.collection("enquetes").findOne({_id:new ObjectId(choice.pollId)})
+        console.log(enquet)
+    }catch(erro){return res.status(500).send(erro.message)} 
+
 })
 
 
