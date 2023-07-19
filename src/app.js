@@ -70,7 +70,19 @@ app.post("/choice",async (req,res)=>{
         res.status(200).send("foi")
     }catch(err){return res.status(500).send(err.message)}
 })
-app.get()
+app.get("/poll/:id/choice",async(req,res)=>{
+    const identific = req.params.id
+    try{
+        const choices = await db.collection('choices').find({pollId:identific}).toArray()
+        console.log(choices)
+        console.log(choices === null)
+        console.log(choices === [])
+        if(choices.length < 1){
+            return res.status(404).send("enquete não encotrada no servidor")
+        }
+        return res.status(200).send(choices)
+    }catch(erro){return res.status(500).send(erro.message)}
+})
 
 
 app.listen(5000,()=>console.log("api is working"))
