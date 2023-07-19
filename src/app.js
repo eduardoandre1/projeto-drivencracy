@@ -59,8 +59,8 @@ app.post("/choice",async (req,res)=>{
         if(!enquete){
             return res.sendStatus(404)
         }
-        const choice = await db.collection("choices").findOne({title:title})
-        if(choice){
+        const alreadchoice = await db.collection("choices").findOne({title:title})
+        if(alreadchoice){
             return res.sendStatus(409)
         }
         console.log(enquete.expireAt)
