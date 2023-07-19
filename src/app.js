@@ -90,6 +90,11 @@ app.post("/choice/:id/vote",async(req,res)=>{
         console.log(choice)
         const enquet = await db.collection("enquetes").findOne({_id:new ObjectId(choice.pollId)})
         console.log(enquet)
+        if(new Date(done_in).getTime() > new Date(enquet.expireAt)){
+            return res.status(403).send('Não pode ser registrado se a enquete já estiver expirado')
+        }
+        await db.collection('urna').insertOne(vote)
+        return res.sendStatus(200)
     }catch(erro){return res.status(500).send(erro.message)} 
 
 })
