@@ -62,10 +62,7 @@ app.post("/choice",async (req,res)=>{
         const alreadchoice = await db.collection("choices").findOne({title:title})
         if(alreadchoice){
             return res.sendStatus(409)
-        }
-        console.log(enquete.expireAt)
-        console.log(new Date(enquete.expireAt))
-        console.log(now)
+        } 
         if(now.getTime() >new  Date(enquete.expireAt).getTime()){
             return res.sendStatus(403)
         }
@@ -73,7 +70,7 @@ app.post("/choice",async (req,res)=>{
         res.status(200).send("foi")
     }catch(err){return res.status(500).send(err.message)}
 })
-
+app.get()
 
 
 app.listen(5000,()=>console.log("api is working"))
