@@ -3,7 +3,7 @@ import { MongoClient, ObjectId } from "mongodb";
 import  cors from "cors";
 import dotenv from "dotenv";
 import dayjs from "dayjs";
-import  date  from "joi";
+
 
 //url encrypty
 dotenv.config()
@@ -124,7 +124,7 @@ app.get("/poll/:id/result",async(req,res)=>{
 
 })
 
-
-app.listen(5000,()=>console.log("api is working"))
+const port = process.env.PORT || 5000
+app.listen(port,()=>console.log("api is working"))
 
 
