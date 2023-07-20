@@ -66,7 +66,7 @@ app.post("/choice",async (req,res)=>{
             return res.sendStatus(403)
         }
         await db.collection("choices").insertOne(choice)
-        res.status(200).send("foi")
+        res.status(201).send("create")
     }catch(err){return res.status(500).send(err.message)}
 })
 app.get("/poll/:id/choice",async(req,res)=>{
@@ -84,18 +84,43 @@ app.post("/choice/:id/vote",async(req,res)=>{
     console.log("voto")
     const option_choosen = req.params.id
     const done_in = dayjs().format("YYYY-MM-DD HH:mm:ss")
-    const vote = {option:option_choosen,time:done_in}
+    const vote = {choiceId:option_choosen,createdAt:done_in}
     try{
         const choice = await db.collection('choices').findOne({_id:new ObjectId(option_choosen)})
         console.log(choice)
+        vote.pull = choice
         const enquet = await db.collection("enquetes").findOne({_id:new ObjectId(choice.pollId)})
         console.log(enquet)
+        vote.pull = enquet._id
         if(new Date(done_in).getTime() > new Date(enquet.expireAt)){
             return res.status(403).send('Não pode ser registrado se a enquete já estiver expirado')
         }
         await db.collection('urna').insertOne(vote)
-        return res.sendStatus(200)
+        return res.sendStatus(201)
     }catch(erro){return res.status(500).send(erro.message)} 
+})
+
+app.get("/poll/:id/result",async(req,res)=>{
+    const poll = req.params.id
+    try{
+        const choices = await db.collection("choices").find({pollId:poll}).toArray()
+        if(choices.length < 1){
+            return res.status(403).send("não tem enquete com este id no banco")
+        }
+        const options = await choices.map(async(option)=>{
+            try{
+                const vote = await db.collection('urna').find({choiceId:option._id.toString()}).toArray()
+                const result = {title:option.title,votes: vote.length}
+                return result
+            }catch(erro){return erro.messages}
+            })
+        const result = await Promise.all(options)
+        const ordenado = result.sort((a,b)=>b.votes-a.votes)
+        console.log(ordenado)
+        return res.send(ordenado[0])
+        
+
+    }catch(erro){return res.status(500).send(erro.message)}
 
 })
 
